@@ -1,0 +1,416 @@
+iou=0.5
+iou=0.75
+
+小、中、大三个类别的mAP，将面积小于32^2像素点的归为小目标，面积大于96^2的归为大目标，介于二者之间的为中等目标。计算不同目标的mAP。
+
+
+
+不过滤不含GT的图片   D:\jht_code\mmdetection\mmdetction_git\mmdetection\docs\zh_cn\advanced_guides\customize_dataset.md
+    在 MMDetection v2.5.0 之前，如果类别为集合时数据集将自动过滤掉不包含 GT 的图片，且没办法通过修改配置将其关闭。这是一种不可取的行为而且会引起混淆，因为当类别不是集合时数据集时，只有在 filter_empty_gt=True 以及 test_mode=False 的情况下才会过滤掉不包含 GT 的图片。在 MMDetection v2.5.0 之后，我们将图片的过滤以及类别的修改进行解耦，数据集只有在 filter_cfg=dict(filter_empty_gt=True) 和 test_mode=False 的情况下才会过滤掉不包含 GT 的图片，无论类别是否为集合。设置类别只会影响用于训练的标注类别，用户可以自行决定是否过滤不包含 GT 的图片。
+    直接使用 MMEngine 中的 BaseDataset 或者 MMDetection 中的 BaseDetDataset 时用户不能通过修改配置来过滤不含 GT 的图片，但是可以通过离线的方式来解决。
+    当设置数据集中的 classes 时，记得修改 num_classes。从 v2.9.0 (PR#4508) 之后，我们实现了 NumClassCheckHook 来检查类别数是否一致。
+
+
+正负样本不平衡的损失函数计算    D:\jht_code\mmdetection\mmdetction_git\mmdetection\docs\zh_cn\advanced_guides\customize_losses.md
+对于一些损失函数，需要采样策略来避免正负样本之间的不平衡。
+
+
+
+自定义模型  D:\jht_code\mmdetection\mmdetction_git\mmdetection\docs\zh_cn\advanced_guides\customize_models.md
+我们简单地把模型的各个组件分为五类：
+    主干网络 (backbone)：通常是一个用来提取特征图 (feature map) 的全卷积网络 (FCN network)，例如：ResNet, MobileNet。
+    Neck：主干网络和 Head 之间的连接部分，例如：FPN, PAFPN。
+    Head：用于具体任务的组件，例如：边界框预测和掩码预测。
+    区域提取器 (roi extractor)：从特征图中提取 RoI 特征，例如：RoI Align。
+    损失 (loss)：在 Head 组件中用于计算损失的部分，例如：FocalLoss, L1Loss, GHMLoss.
+
+    开发新的组件
+        添加一个新的主干网络
+            1. 定义一个新的主干网络（以 MobileNet 为例）
+            2. 导入该模块
+            3. 在你的配置文件中使用该主干网络
+        添加新的 Neck
+            1. 定义一个 Neck（以 PAFPN 为例）
+            2. 导入该模块
+            3. 修改配置文件
+        添加新的 Head
+        添加新的损失
+
+
+
+
+自定义训练配置、钩子介绍   D:\jht_code\mmdetection\mmdetction_git\mmdetection\docs\zh_cn\advanced_guides\customize_runtime.md
+    自定义优化相关的配置：   优化相关的配置现在已全部集成到 optim_wrapper 中，通常包含三个域：optimizer, paramwise_cfg，clip_grad，具体细节见 OptimWrapper
+    自定义 Pytorch 中优化器设置：    已经支持了 Pytorch 中实现的所有优化器，修改配置文件
+    自定义优化器
+        1. 定义一个新优化器
+        2. 导入自定义的优化器
+        3. 在配置文件中指定优化器
+    自定义优化器包装构造类：一些模型可能存在一些特定参数的优化设置，比如，BN 层的权重衰减。用户可以通过自定义优化器包装构造类来实现这些精细化的参数调整。
+    额外的设置
+
+    自定义训练策略
+        默认情况下，我们使用 1x 的学习率调整策略，这会条用 MMEngine 中的 MultiStepLR。 我们支持许多其他学习率调整策略，具体见这里，例如 CosineAnnealingLR 和 PolyLR 策略。下面有些例子
+    自定义训练循环：默认情况下，在 train_cfg 中使用 EpochBasedTrainLoop，并且在每个 epoch 训练之后进行验证，如下所示。实际上，IterBasedTrainLoop 和\[EpochBasedTrainLoop\](https:// github.com/open-mmlab/mmengine/blob/main/mmengine/runner/loops.py#L18) 支持动态区间的方式进行验证
+    自定义钩子
+        自定义自行实现的钩子
+            1. 实现一个新的钩子
+            2. 注册新钩子
+            3. 修改配置
+    使用 MMDetection 中实现的钩子：如果 MMDetection 中已经实现了该钩子，你可以直接修改配置以使用该钩子
+        修改默认运行时钩子
+
+
+自定义数据集   D:\jht_code\mmdetection\mmdetction_git\mmdetection\docs\zh_cn\advanced_guides\customize_dataset.md
+
+
+自定义数据预处理流程 pipeline D:\jht_code\mmdetection\mmdetction_git\mmdetection\docs\zh_cn\advanced_guides\customize_transforms.md
+    1.在任意文件里写一个新的流程，例如在 my_pipeline.py，它以一个字典作为输入并且输出一个字典
+    2.在配置文件里调用并使用你写的数据处理流程，需要确保你的训练脚本能够正确导入新增模块
+    3.可视化数据增强处理流程的结果
+        如果想要可视化数据增强处理流程的结果，可以使用 tools/misc/browse_dataset.py 直观 地浏览检测数据集（图像和标注信息），或将图像保存到指定目录。 使用方法请参考可视化文档
+
+
+
+
+使用 MMPretrain 的骨干网络  D:\jht_code\mmdetection\mmdetction_git\mmdetection\docs\zh_cn\advanced_guides\how_to.md
+    MMDet、MMPretrain、MMSeg 中的模型注册表都继承自 MMEngine 中的根注册表，允许这些存储库直接使用彼此已经实现的模块。 因此用户可以在 MMDetection 中使用来自 MMPretrain 的骨干网络，而无需实现MMPretrain 中已经存在的网络。
+    使用在 MMPretrain 中实现的骨干网络
+    通过 MMPretrain 使用 TIMM 中实现的骨干网络
+
+
+    使用马赛克数据增强
+    在配置文件中冻结骨干网络后在训练中解冻骨干网络
+    获得新的骨干网络的通道数
+
+MMDetection 中训练 Detectron2 的模型
+    使用 Detectron2 的预训练权重
+
+
+
+
+什么是 MMDetection：D:\jht_code\mmdetection\mmdetction_git\mmdetection\docs\zh_cn\overview.md
+    MMDetection 由 7 个主要部分组成，apis、structures、datasets、models、engine、evaluation 和 visualization。
+    evaluation 为评估模型性能提供不同的指标。
+    visualization 用于可视化检测结果。
+
+学习配置文件 D:\jht_code\mmdetection\mmdetction_git\mmdetection\docs\zh_cn\user_guides\config.md
+    MMDetection 和其他 OpenMMLab 仓库使用 MMEngine 的配置文件系统。 配置文件使用了模块化和继承设计，以便于进行各类实验。
+    https://mmengine.readthedocs.io/zh_CN/latest/advanced_tutorials/config.html
+    配置文件的内容
+        1.模型配置
+            model 字段来配置检测算法的组件
+            data_preprocessor 负责对 dataloader 输出的每一批数据进行预处理
+            模型配置中的 train_cfg 和 test_cfg 用于设置训练和测试组件的超参数
+        2.数据集和评测器配置
+            在使用执行器 进行训练、测试、验证时，我们需要配置 Dataloader。构建数据 dataloader 需要设置数据集（dataset）和数据处理流程（data pipeline）。 由于这部分的配置较为复杂，我们使用中间变量来简化 dataloader 配置的编写。
+                执行器：https://mmengine.readthedocs.io/zh_CN/latest/tutorials/runner.html
+                Dataloader：https://mmengine.readthedocs.io/zh_CN/latest/tutorials/dataset.html
+            评测器 用于计算训练模型在验证和测试数据集上的指标。评测器的配置由一个或一组评价指标（Metric）配置组成
+                评测器：https://mmengine.readthedocs.io/zh_CN/latest/tutorials/evaluation.html
+        3.训练和测试的配置
+            MMEngine 的 Runner 使用 Loop 来控制训练，验证和测试过程。 用户可以使用这些字段设置最大训练轮次和验证间隔。
+        4.优化相关配置
+            optim_wrapper 是配置优化相关设置的字段。优化器封装（OptimWrapper）不仅提供了优化器的功能，还支持梯度裁剪、混合精度训练等功能。更多内容请看优化器封装教程 。
+                优化器封装教程：https://mmengine.readthedocs.io/zh_CN/latest/tutorials/optim_wrapper.html
+            param_scheduler 字段用于配置参数调度器（Parameter Scheduler）来调整优化器的超参数（例如学习率和动量）。 用户可以组合多个调度器来创建所需的参数调整策略。 在 参数调度器教程 和 参数调度器 API 文档 中查找更多信息。
+        5.钩子配置
+        6.运行相关配置
+    Iter-based 配置
+        MMEngine 的 Runner 除了基于轮次的训练循环（epoch）外，还提供了基于迭代（iteration）的训练循环。
+    配置文件继承
+        如果需要检查配置文件，可以通过运行 python tools/misc/print_config.py /PATH/TO/CONFIG 来查看完整的配置。
+        D:\jht_code\mmdetection\mmdetction_git\mmdetection\tools\misc\print_config.py
+
+        忽略基础配置文件里的部分内容
+            要使用 _delete_=True 将新的键去替换 backbone 域内所有老的键
+        使用配置文件里的中间变量
+            在定义新的 train_pipeline/test_pipeline 之后，需要将它们传递到 data 里
+        复用 _base_ 文件中的变量
+            如果用户希望在当前配置中复用 base 文件中的变量，则可以通过使用 {{_base_.xxx}} 的方式来获取对应变量的拷贝
+
+
+    通过脚本参数修改配置
+
+
+
+
+
+模型微调 D:\jht_code\mmdetection\mmdetction_git\mmdetection\docs\zh_cn\user_guides\finetune.md
+    在新数据集中微调模型需要的两个步骤
+        按 教程2：自定义数据集 中的方法对新数据集添加支持中的方法对新数据集添加支持
+        按照本教程中所讨论方法，修改配置信息
+
+    继承基础配置
+        为了减轻编写整个配置的负担并减少漏洞的数量， MMDetection V3.0 支持从多个现有配置中继承配置信息。
+
+    Head 的修改
+        接下来新的配置还需要根据新数据集的类别数量对 Head 进行修改。只需要对 roi_head 中的 num_classes进行修改。修改后除了最后的预测模型的 Head 之外，预训练模型的权重的大部分都会被重新使用。
+
+    数据集的修改
+        用户可能还需要准备数据集并编写有关数据集的配置，可在 Customize Datasets（自定义数据集） 中获取更多信息。目前 MMDetection V3.0 的配置文件已经支持 VOC、WIDERFACE、COCO、LIVS、OpenImages、DeepFashion、Objects365 和 Cityscapes Dataset 的数据集信息。
+
+    训练策略的修改
+        微调超参数与默认的训练策略不同。它通常需要更小的学习率和更少的训练回合。
+
+    使用预训练模型
+        如果要使用预训练模型，可以在 load_from 中查阅新的配置信息，用户需要在训练开始之前下载好需要的模型权重，从而避免在训练过程中浪费了宝贵时间。
+
+使用已有模型在标准数据集上进行推理   D:\jht_code\mmdetection\mmdetction_git\mmdetection\docs\zh_cn\user_guides\inference.md
+    推理具体指使用训练好的模型来检测图像上的目标
+    在 MMDetection 中，一个模型被定义为一个配置文件 和对应被存储在 checkpoint 文件内的模型参数的集合。
+    单张图片上进行推理的脚本  demo/image_demo.py
+
+
+权重初始化  D:\jht_code\mmdetection\mmdetction_git\mmdetection\docs\zh_cn\user_guides\init_cfg.md
+    在训练过程中，适当的初始化策略有利于加快训练速度或获得更⾼的性能。MMdetection 中的模型初始化主要使⽤ init_cfg
+    ⽤⼾可以通过以下两个步骤来初始化模型：
+    1.在 model_cfg 中为模型或其组件定义 init_cfg，但⼦组件的 init_cfg 优先级更⾼，会覆盖⽗模块的 init_cfg
+    2.像往常一样构建模型，然后显式调⽤ model.init_weights() ⽅法，此时模型参数将会被按照配置文件写法进行初始化
+        描述
+            它的数据类型是 dict 或者 list\[dict\]，包含了下列键值:
+        初始化参数
+        init_cfg 的使用
+            1.用 layer 键初始化模型
+            2.使⽤ override 键初始化模型
+            3.使⽤预训练模型初始化模型
+
+在标准数据集上训练自定义模型  D:\jht_code\mmdetection\mmdetction_git\mmdetection\docs\zh_cn\user_guides\new_model.md
+    1.准备标准数据集
+    2.准备你的自定义模型
+    3.准备配置文件
+    4.在标准数据集上对模型进行训练、测试和推理
+
+    准备标准数据集
+        将 cityscapes 标注转化为 coco 标注格式
+        如果你的网络不可用或者比较慢，建议你先手动下载对应的预训练权重，否则可能在训练开始时候出现错误。
+    准备你的自定义模型
+        关于自定义模型其余相关细节例如实现新的骨架网络，头部网络、损失函数，以及运行时训练配置例如定义新的优化器、使用梯度裁剪、定制训练调度策略和钩子等，请参考文档 自定义模型 和 自定义运行时训练配置。
+    准备配置文件
+    训练新模型
+    测试和推理
+
+
+
+
+
+半监督目标检测  D:\jht_code\mmdetection\mmdetction_git\mmdetection\docs\zh_cn\user_guides\semi_det.md
+    半监督目标检测同时利用标签数据和无标签数据进行训练，一方面可以减少模型对检测框数量的依赖，另一方面也可以利用大量的未标记数据进一步提高模型。
+
+    准备和拆分数据集
+        我们提供了数据集下载脚本，默认下载 coco2017 数据集，并且自动解压。
+        半监督目标检测在 coco 数据集上有两种比较通用的实验设置：
+
+    配置多分支数据流程
+        1）标签数据的数据流程：
+        2）无标签的数据流程：
+
+    配置半监督数据加载
+        1）构建半监督数据集。使用 ConcatDataset 拼接标签数据集和无标签数据集。
+        2）使用多源数据集采样器。
+
+    配置半监督模型 ****
+
+    配置MeanTeacherHook
+
+    配置TeacherStudentValLoop
+
+
+
+
+将单阶段检测器作为 RPN   D:\jht_code\mmdetection\mmdetction_git\mmdetection\docs\zh_cn\user_guides\single_stage_as_rpn.md
+    任何的单阶段检测器都可以作为候选区域网络，是因为他们对边界框的预测可以被视为是一种候选区域
+    如何在 Faster R-CNN 中使用一个无锚框的单阶段的检测器模型 FCOS 作为 RPN
+        1.在 Faster R-CNN 中使用 FCOSHead 作为 RPNHead
+        2.评估候选区域
+        3.用预先训练的 FCOS 训练定制的 Faster R-CNN
+    评估候选区域
+        候选区域的质量对检测器的性能有重要影响，因此，我们也提供了一种评估候选区域的方法
+    用预先训练的 FCOS 训练定制的 Faster R-CNN
+
+
+测试现有模型 D:\jht_code\mmdetection\mmdetction_git\mmdetection\docs\zh_cn\user_guides\test.md
+    1.测试 RTMDet 并【可视化其结果】。按任意键继续下张图片的测试。配置文件和 checkpoint 文件 在此 。  --show
+    2.测试 RTMDet，并为了之后的【可视化保存绘制的图像】。 --show-dir rtmdet_l_8xb32-300e_coco_results
+    3.在 Pascal VOC 数据集上测试 Faster R-CNN，不保存测试结果，测试 mAP
+    4.使用 8 块 GPU 测试 Mask R-CNN，测试 bbox 和 mAP
+    5.使用 8 块 GPU 测试 Mask R-CNN，测试每类的 bbox 和 mAP
+    在 COCO test-dev 数据集上，使用 8 块 GPU 测试 Mask R-CNN，并生成 JSON 文件提交到官方评测服务器
+    在 Cityscapes 数据集上，使用 8 块 GPU 测试 Mask R-CNN，生成 txt 和 png 文件，并上传到官方评测服务器
+
+
+    不使用 Ground Truth 标注进行测试
+        MMDetection 支持在不使用 ground-truth 标注的情况下对模型进行测试，这需要用到 CocoDataset
+        如果你的数据集格式不是 COCO 格式的，请将其转化成 COCO 格式
+            VOC 或者 Cityscapes，你可以使用 tools/dataset_converters 内的脚本
+            如果是其他格式，可以使用 images2coco 脚本 进行转换。
+        在转换完成后，使用如下命令进行测试
+
+
+    批量推理
+        MMDetection 在测试模式下，既支持单张图片的推理，也支持对图像进行批量推理。
+        默认情况下，我们使用单张图片的测试，你可以通过修改测试数据配置文件中的 samples_per_gpu 来开启批量测试。 开启批量推理的配置文件修改方法为：
+        或者你可以通过将 --cfg-options 设置为 --cfg-options test_dataloader.batch_size= 来开启它。
+
+
+    测试时增强 (TTA)
+        是一种在测试阶段使用的数据增强策略
+        使用案例
+            1.使用 TTA 需要两个步骤。首先，你需要在配置文件中添加 tta_model 和 tta_pipeline：
+            2.运行测试脚本时，设置 --tta 参数，如下所示：
+                也可以自己修改 TTA 配置，例如添加缩放增强：
+
+
+提交测试结果 D:\jht_code\mmdetection\mmdetction_git\mmdetection\docs\zh_cn\user_guides\test_results_submission.md
+
+
+在标准数据集上训练预定义的模型  D:\jht_code\mmdetection\mmdetction_git\mmdetection\docs\zh_cn\user_guides\train.md
+    数据集
+    学习率自动缩放  --auto-scale-lr
+        执行命令之后，会根据机器的GPU数量和训练的批次大小对学习率进行自动缩放
+        如果不启用该功能，则需要根据 线性扩展规则 来手动计算并修改配置文件里面 optimizer.lr 的值。
+
+
+    使用单 GPU 训练
+        在训练期间，日志文件和 checkpoint 文件将会被保存在工作目录下，它需要通过配置文件中的 work_dir 或者 CLI 参数中的 --work-dir 来指定。
+        默认情况下，模型将在每轮训练之后在 validation 集上进行测试，测试的频率可以通过设置配置文件来指定：
+            train_cfg = dict(val_interval=12)
+        参数
+            --work-dir ${WORK_DIR}: 覆盖工作目录.
+            --resume：自动从work_dir中的最新检查点恢复.
+            --resume ${CHECKPOINT_FILE}: 从某个 checkpoint 文件继续训练.
+            --cfg-options 'Key=value': 覆盖使用的配置文件中的其他设置.
+
+            resume 和 load-from 的区别：
+                resume 既加载了模型的权重和优化器的状态，也会继承指定 checkpoint 的迭代次数，不会重新开始训练。load-from 则是只加载模型的权重，它的训练是从头开始的，经常被用于微调模型。其中load-from需要写入配置文件中，而resume作为命令行参数传入。
+
+    使用 CPU 训练
+    在多 GPU 上训练
+    使用多台机器训练
+    使用 Slurm 来管理任务
+
+
+在自定义数据集上进行训练 D:\jht_code\mmdetection\mmdetction_git\mmdetection\docs\zh_cn\user_guides\train.md
+    1.准备自定义数据集
+    2.准备配置文件
+    3.在自定义数据集上进行训练，测试和推理
+
+    准备自定义数据集
+        MMDetection 一共支持三种形式应用新数据集：
+            将数据集重新组织为 COCO 格式   ***
+            将数据集重新组织为一个中间格式
+            实现一个新的数据集
+
+        在 MMDetection 3.0 之后，数据集和指标已经解耦（除了 CityScapes）。因此，用户在验证阶段使用任意的评价指标来评价模型在任意数据集上的性能
+        用 VOC 评价指标来评价模型在 COCO 数据集的性能
+
+    准备配置文件
+        详细的配置文件方法可以参考学习配置文件 — MMDetection 3.0.0 文档。https://mmdetection.readthedocs.io/zh_CN/latest/user_guides/config.html#base
+
+    训练一个新的模型
+        参考 在标准数据集上训练预定义的模型 来获取更多详细的使用方法。https://mmdetection.readthedocs.io/zh_CN/latest/user_guides/train.html#id1
+
+    测试以及推理
+    参考 测试现有模型 来获取更多详细的使用方法。https://mmdetection.readthedocs.io/zh_CN/latest/user_guides/test.html
+
+
+实用的钩子
+    MMDetection 和 MMEngine 为用户提供了多种多样实用的钩子（Hook），包括 MemoryProfilerHook、NumClassCheckHook 等等。 这篇教程介绍了 MMDetection 中实现的钩子功能及使用方式。
+    若使用 MMEngine 定义的钩子请参考 MMEngine 的钩子API文档.https://github.com/open-mmlab/mmengine/blob/main/docs/en/tutorials/hook.md
+
+    如何实现自定义钩子
+
+
+
+除了训练和测试脚本，我们还在 tools/ 目录下提供了许多有用的工具。D:\jht_code\mmdetection\mmdetction_git\mmdetection\docs\zh_cn\user_guides\useful_tools.md
+    日志分析  tools/analysis_tools/analyze_logs.py 可利用指定的训练 log 文件绘制 loss/mAP 曲线图
+        绘制分类损失曲线图
+        绘制分类损失、回归损失曲线图，保存图片为对应的 pdf 文件
+        在相同图像中比较两次运行结果的 bbox mAP
+        计算平均训练速度     输出以如下形式展示
+            -----Analyze train time of work_dirs/some_exp/20190611_192040.log.json-----
+            slowest epoch 11, average time is 1.2024
+            fastest epoch 1, average time is 1.1909
+            time std over epochs is 0.0028
+            average iter time: 1.1959 s/iter
+
+
+    结果分析  使用 tools/analysis_tools/analyze_results.py 可计算每个图像 mAP，随后根据真实标注框与预测框的比较结果，展示或保存最高与最低 top-k 得分的预测图像。
+        各个参数选项的作用:  *************************
+
+        样例: 假设你已经通过 tools/test.py 得到了 pickle 格式的结果文件，路径为 './result.pkl'。
+            1.测试 Faster R-CNN 并可视化结果，保存图片至 results/
+            2.测试 Faster R-CNN 并指定 top-k 参数为 50，保存结果图片至 results/
+            3.如果你想过滤低概率的预测结果，指定 show-score-thr 参数
+
+    可视化
+        可视化数据集
+            tools/analysis_tools/browse_dataset.py 可帮助使用者检查所使用的检测数据集（包括图像和标注），或保存图像至指定目录。
+        可视化模型
+        可视化预测结果
+            如果你想要一个轻量 GUI 可视化检测结果，你可以参考 DetVisGUI project。https://github.com/Chien-Hung/DetVisGUI/tree/mmdetection
+
+    误差分析
+        tools/analysis_tools/coco_error_analysis.py 使用不同标准分析每个类别的 COCO 评估结果。同时将一些有帮助的信息体现在图表上。
+
+    模型服务部署
+    模型复杂度
+        tools/analysis_tools/get_flops.py 工具可用于计算指定模型的 FLOPs、参数量大小（改编自 flops-counter.pytorch ）。
+        python tools/analysis_tools/get_flops.py ${CONFIG_FILE} [--shape ${INPUT_SHAPE}]
+        获得的结果如下：
+        ==============================
+        Input shape: (3, 1280, 800)
+        Flops: 239.32 GFLOPs
+        Params: 37.74 M
+        ==============================
+
+    模型转换
+
+数据集转换  tools/data_converters/ 提供了将 Cityscapes 数据集与 Pascal VOC 数据集转换至 COCO 数据集格式的工具
+数据集下载  tools/misc/download_dataset.py 可以下载各类形如 COCO， VOC， LVIS 数据集。
+
+基准测试
+    鲁棒性测试基准
+    FPS 测试基准
+
+
+更多工具
+    以某个评估标准进行评估  tools/analysis_tools/eval_metric.py 根据配置文件中的评估方式对 pkl 结果文件进行评估。
+    打印全部 config   tools/misc/print_config.py 可将所有配置继承关系展开，完全打印相应的配置文件。
+
+超参数优化
+    YOLO Anchor 优化
+        tools/analysis_tools/optimize_anchors.py 提供了两种方法优化 YOLO 的 anchors。
+
+混淆矩阵************
+    混淆矩阵是对检测结果的概览。 tools/analysis_tools/confusion_matrix.py 可对预测结果进行分析，绘制成混淆矩阵表。 首先，运行 tools/test.py 保存 .pkl 预测结果。 之后再运行：
+    python tools/analysis_tools/confusion_matrix.py ${CONFIG}  ${DETECTION_RESULTS}  ${SAVE_DIR} --show
+
+COCO 分离和遮挡实例分割性能评估
+    离线评测
+    在线评测
+
+
+可视化  D:\jht_code\mmdetection\mmdetction_git\mmdetection\docs\zh_cn\user_guides\visualization.md
+    在阅读本教程之前，建议先阅读 MMEngine 的 Visualization 文档，以对 Visualizer 的定义和用法有一个初步的了解。
+    Visualization 文档：https://github.com/open-mmlab/mmengine/blob/main/docs/en/advanced_tutorials/visualization.md
+
+    配置
+        由于使用了注册机制，在MMDet中我们可以通过修改配置文件来设置Visualizer的行为。通常，我们会在configs/_base_/default_runtime.py中为可视化器定义默认配置，详细信息请参见配置教程。
+
+    存储
+
+    绘图
+        绘制预测结果
+            MMDet主要使用DetVisualizationHook来绘制验证和测试的预测结果，默认情况下DetVisualizationHook是关闭的，其默认配置如下。
+            visualization=dict( #用户可视化验证和测试结果
+                type='DetVisualizationHook',
+                draw=False,
+                interval=1,
+                show=False)
+
+        如果您想在训练或测试期间启用 DetVisualizationHook 相关功能和配置，您只需要修改配置文件
+
+        test.py程序提供了--show和--show-dir参数，可以在测试过程中可视化注释和预测结果，而不需要修改配置文件，从而进一步简化了测试过程。
+
+
