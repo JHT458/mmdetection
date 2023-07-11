@@ -522,7 +522,7 @@ yolact = dict(
     metric=dict(bbox_mAP=31.2, segm_mAP=29.0),
 )
 yolo = dict(
-    config='configs/yolo/yolov3_d53_8xb8-320-273e_coco.py',
+    config='configs/yolo/yolov3_d53_8xb8_320_273e_tea_1.py',
     checkpoint='yolov3_d53_320_273e_coco-421362b6.pth',
     url='https://download.openmmlab.com/mmdetection/v2.0/yolo/yolov3_d53_320_273e_coco/yolov3_d53_320_273e_coco-421362b6.pth', # noqa
     eval='bbox',

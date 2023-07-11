@@ -149,8 +149,8 @@ echo 'configs/vfnet/vfnet_r50_fpn_1x_coco.py' &
 GPUS=8  GPUS_PER_NODE=8  CPUS_PER_TASK=$CPUS_PRE_TASK tools/slurm_test.sh $PARTITION vfnet_r50_fpn_1x_coco configs/vfnet/vfnet_r50_fpn_1x_coco.py $CHECKPOINT_DIR/vfnet_r50_fpn_1x_coco_20201027-38db6f58.pth --work-dir $WORK_DIR/vfnet_r50_fpn_1x_coco --cfg-option env_cfg.dist_cfg.port=29737  &
 echo 'configs/yolact/yolact_r50_1xb8-55e_coco.py' &
 GPUS=8  GPUS_PER_NODE=8  CPUS_PER_TASK=$CPUS_PRE_TASK tools/slurm_test.sh $PARTITION yolact_r50_1xb8-55e_coco configs/yolact/yolact_r50_1xb8-55e_coco.py $CHECKPOINT_DIR/yolact_r50_1x8_coco_20200908-f38d58df.pth --work-dir $WORK_DIR/yolact_r50_1xb8-55e_coco --cfg-option env_cfg.dist_cfg.port=29738  &
-echo 'configs/yolo/yolov3_d53_8xb8-320-273e_coco.py' &
-GPUS=8  GPUS_PER_NODE=8  CPUS_PER_TASK=$CPUS_PRE_TASK tools/slurm_test.sh $PARTITION yolov3_d53_8xb8-320-273e_coco configs/yolo/yolov3_d53_8xb8-320-273e_coco.py $CHECKPOINT_DIR/yolov3_d53_320_273e_coco-421362b6.pth --work-dir $WORK_DIR/yolov3_d53_8xb8-320-273e_coco --cfg-option env_cfg.dist_cfg.port=29739  &
+echo 'configs/yolo/yolov3_d53_8xb8_320_273e_tea_1.py' &
+GPUS=8  GPUS_PER_NODE=8  CPUS_PER_TASK=$CPUS_PRE_TASK tools/slurm_test.sh $PARTITION yolov3_d53_8xb8-320-273e_coco configs/yolo/yolov3_d53_8xb8_320_273e_tea_1.py $CHECKPOINT_DIR/yolov3_d53_320_273e_coco-421362b6.pth --work-dir $WORK_DIR/yolov3_d53_8xb8-320-273e_coco --cfg-option env_cfg.dist_cfg.port=29739  &
 echo 'configs/yolof/yolof_r50-c5_8xb8-1x_coco.py' &
 GPUS=8  GPUS_PER_NODE=8  CPUS_PER_TASK=$CPUS_PRE_TASK tools/slurm_test.sh $PARTITION yolof_r50-c5_8xb8-1x_coco configs/yolof/yolof_r50-c5_8xb8-1x_coco.py $CHECKPOINT_DIR/yolof_r50_c5_8x8_1x_coco_20210425_024427-8e864411.pth --work-dir $WORK_DIR/yolof_r50-c5_8xb8-1x_coco --cfg-option env_cfg.dist_cfg.port=29740  &
 echo 'configs/yolox/yolox_tiny_8xb8-300e_coco.py' &

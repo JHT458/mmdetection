@@ -156,8 +156,8 @@ echo 'configs/vfnet/vfnet_r50_fpn_1x_coco.py' &
 GPUS=8  GPUS_PER_NODE=8  CPUS_PER_TASK=$CPUS_PRE_TASK ./tools/slurm_train.sh $PARTITION vfnet_r50_fpn_1x_coco configs/vfnet/vfnet_r50_fpn_1x_coco.py $WORK_DIR/vfnet_r50_fpn_1x_coco --cfg-options default_hooks.checkpoint.max_keep_ckpts=1 &
 echo 'configs/yolact/yolact_r50_8xb8-55e_coco.py' &
 GPUS=8  GPUS_PER_NODE=8  CPUS_PER_TASK=$CPUS_PRE_TASK ./tools/slurm_train.sh $PARTITION yolact_r50_8xb8-55e_coco configs/yolact/yolact_r50_8xb8-55e_coco.py $WORK_DIR/yolact_r50_8xb8-55e_coco --cfg-options default_hooks.checkpoint.max_keep_ckpts=1 &
-echo 'configs/yolo/yolov3_d53_8xb8-320-273e_coco.py' &
-GPUS=8  GPUS_PER_NODE=8  CPUS_PER_TASK=$CPUS_PRE_TASK ./tools/slurm_train.sh $PARTITION yolov3_d53_8xb8-320-273e_coco configs/yolo/yolov3_d53_8xb8-320-273e_coco.py $WORK_DIR/yolov3_d53_8xb8-320-273e_coco --cfg-options default_hooks.checkpoint.max_keep_ckpts=1 &
+echo 'configs/yolo/yolov3_d53_8xb8_320_273e_tea_1.py' &
+GPUS=8  GPUS_PER_NODE=8  CPUS_PER_TASK=$CPUS_PRE_TASK ./tools/slurm_train.sh $PARTITION yolov3_d53_8xb8-320-273e_coco configs/yolo/yolov3_d53_8xb8_320_273e_tea_1.py $WORK_DIR/yolov3_d53_8xb8-320-273e_coco --cfg-options default_hooks.checkpoint.max_keep_ckpts=1 &
 echo 'configs/yolof/yolof_r50-c5_8xb8-1x_coco.py' &
 GPUS=8  GPUS_PER_NODE=8  CPUS_PER_TASK=$CPUS_PRE_TASK ./tools/slurm_train.sh $PARTITION yolof_r50-c5_8xb8-1x_coco configs/yolof/yolof_r50-c5_8xb8-1x_coco.py $WORK_DIR/yolof_r50-c5_8xb8-1x_coco --cfg-options default_hooks.checkpoint.max_keep_ckpts=1 &
 echo 'configs/yolox/yolox_tiny_8xb8-300e_coco.py' &

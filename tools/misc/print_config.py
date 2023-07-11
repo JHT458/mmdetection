@@ -6,13 +6,19 @@ from mmengine import Config, DictAction
 
 from mmdet.utils import replace_cfg_vals, update_data_root
 
-
+# 打印完整配置文件
 def parse_args():
     parser = argparse.ArgumentParser(description='Print the whole config')
-    parser.add_argument('config', help='config file path')
+    # parser.add_argument('config', help='config file path')
+    parser.add_argument('-config', help='config file path',
+                        default=r'D:\jht_code\mmdetection_git\mmdetection\configs\tea_data\yolov3_mobilenetv2_8xb24_320_300e_tea_1.py' ) ############
+    # parser.add_argument(
+    #     '--save-path',
+    #     default=None,
+    #     help='save path of whole config, suffixed with .py, .json or .yml')
     parser.add_argument(
         '--save-path',
-        default=None,
+        default=r'D:\jht_code\mmdetection_git\mmdetection\work_dir\yolov3_mobilenetv2_8xb24_320_300e_tea_1\config.py',  ###############
         help='save path of whole config, suffixed with .py, .json or .yml')
     parser.add_argument(
         '--cfg-options',

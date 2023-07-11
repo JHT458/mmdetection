@@ -263,7 +263,7 @@ python tools/deployment/test_torchserver.py ${IMAGE_FILE} ${CONFIG_FILE} ${CHECK
 ```shell
 python tools/deployment/test_torchserver.py \
 demo/demo.jpg \
-configs/yolo/yolov3_d53_8xb8-320-273e_coco.py \
+configs/yolo/yolov3_d53_8xb8_320_273e_tea_1.py \
 checkpoint/yolov3_d53_320_273e_coco-421362b6.pth \
 yolov3 \
 --work-dir ./work-dir
@@ -447,7 +447,7 @@ python tools/analysis_tools/optimize_anchors.py ${CONFIG} --algorithm differenti
 样例：
 
 ```shell
-python tools/analysis_tools/optimize_anchors.py configs/yolo/yolov3_d53_8xb8-320-273e_coco.py --algorithm differential_evolution --input-shape 608 608 --device cuda --output-dir work_dirs
+python tools/analysis_tools/optimize_anchors.py configs/yolo/yolov3_d53_8xb8_320_273e_tea_1.py --algorithm differential_evolution --input-shape 608 608 --device cuda --output-dir work_dirs
 ```
 
 你可能会看到如下结果：

@@ -3,6 +3,14 @@ iou=0.75
 
 小、中、大三个类别的mAP，将面积小于32^2像素点的归为小目标，面积大于96^2的归为大目标，介于二者之间的为中等目标。计算不同目标的mAP。
 
+如果你想把 MMDetection 修改为自己的项目，请遵循下面的约定。  D:\jht_code\mmdetection_git\mmdetection\docs\zh_cn\advanced_guides\conventions.md
+    关于图片 shape 顺序的说明   (width, height)   (height, width)
+
+    损失  model(**data) 的返回值是一个字典，包含着所有的损失和评价指标，他们将会由 model(**data) 返回
+        'bbox_head.loss()' 在模型 forward 阶段会被调用。返回的字典中包含了 'loss_bbox','loss_cls','acc'。只有 'loss_bbox', 'loss_cls' 会被用于反向传播，'acc' 只会被作为评价指标来监控训练过程。
+        我们默认，只有那些键的名称中包含 'loss' 的值会被用于反向传播。这个行为可以通过修改 BaseDetector.train_step() 来改变。
+
+    空 proposals  如果你有自定义的 RoIHead, 你可以参考上面的方法来处理空 proposals 的情况。
 
 
 不过滤不含GT的图片   D:\jht_code\mmdetection\mmdetction_git\mmdetection\docs\zh_cn\advanced_guides\customize_dataset.md
@@ -62,6 +70,12 @@ iou=0.75
 
 
 自定义数据集   D:\jht_code\mmdetection\mmdetction_git\mmdetection\docs\zh_cn\advanced_guides\customize_dataset.md
+    支持新的数据格式
+        为了支持新的数据格式，可以选择将数据转换成现成的格式（COCO 或者 PASCAL）或将其转换成中间格式。当然也可以选择以离线的形式（在训练之前使用脚本转换）或者在线的形式（实现一个新的 dataset 在训练中进行转换）来转换数据。
+        在 MMDetection 中，建议将数据转换成 COCO 格式并以离线的方式进行，因此在完成数据转换后只需修改配置文件中的标注数据的路径和类别即可。
+
+
+自定义损失函数   D:\jht_code\mmdetection_git\mmdetection\docs\zh_cn\advanced_guides\customize_losses.md
 
 
 自定义数据预处理流程 pipeline D:\jht_code\mmdetection\mmdetction_git\mmdetection\docs\zh_cn\advanced_guides\customize_transforms.md
@@ -93,6 +107,11 @@ MMDetection 中训练 Detectron2 的模型
     MMDetection 由 7 个主要部分组成，apis、structures、datasets、models、engine、evaluation 和 visualization。
     evaluation 为评估模型性能提供不同的指标。
     visualization 用于可视化检测结果。
+
+
+基于 MMDetection 的项目   D:\jht_code\mmdetection_git\mmdetection\docs\zh_cn\notes\projects.md
+    有许多开源项目都是基于 MMDetection 搭建的，我们在这里列举一部分作为样例，展示如何基于 MMDetection 搭建您自己的项目。 由于这个页面列举的项目并不完全，我们欢迎社区提交 Pull Request 来更新这个文档。
+
 
 学习配置文件 D:\jht_code\mmdetection\mmdetction_git\mmdetection\docs\zh_cn\user_guides\config.md
     MMDetection 和其他 OpenMMLab 仓库使用 MMEngine 的配置文件系统。 配置文件使用了模块化和继承设计，以便于进行各类实验。
@@ -133,9 +152,6 @@ MMDetection 中训练 Detectron2 的模型
     通过脚本参数修改配置
 
 
-
-
-
 模型微调 D:\jht_code\mmdetection\mmdetction_git\mmdetection\docs\zh_cn\user_guides\finetune.md
     在新数据集中微调模型需要的两个步骤
         按 教程2：自定义数据集 中的方法对新数据集添加支持中的方法对新数据集添加支持
@@ -156,10 +172,12 @@ MMDetection 中训练 Detectron2 的模型
     使用预训练模型
         如果要使用预训练模型，可以在 load_from 中查阅新的配置信息，用户需要在训练开始之前下载好需要的模型权重，从而避免在训练过程中浪费了宝贵时间。
 
+
 使用已有模型在标准数据集上进行推理   D:\jht_code\mmdetection\mmdetction_git\mmdetection\docs\zh_cn\user_guides\inference.md
     推理具体指使用训练好的模型来检测图像上的目标
     在 MMDetection 中，一个模型被定义为一个配置文件 和对应被存储在 checkpoint 文件内的模型参数的集合。
     单张图片上进行推理的脚本  demo/image_demo.py
+
 
 
 权重初始化  D:\jht_code\mmdetection\mmdetction_git\mmdetection\docs\zh_cn\user_guides\init_cfg.md
@@ -175,6 +193,11 @@ MMDetection 中训练 Detectron2 的模型
             2.使⽤ override 键初始化模型
             3.使⽤预训练模型初始化模型
 
+
+
+使用 MMDetection 和 Label-Studio 进行半自动化目标检测标注  D:\jht_code\mmdetection_git\mmdetection\docs\zh_cn\user_guides\label_studio.md
+
+
 在标准数据集上训练自定义模型  D:\jht_code\mmdetection\mmdetction_git\mmdetection\docs\zh_cn\user_guides\new_model.md
     1.准备标准数据集
     2.准备你的自定义模型
@@ -189,9 +212,6 @@ MMDetection 中训练 Detectron2 的模型
     准备配置文件
     训练新模型
     测试和推理
-
-
-
 
 
 半监督目标检测  D:\jht_code\mmdetection\mmdetction_git\mmdetection\docs\zh_cn\user_guides\semi_det.md
@@ -229,14 +249,17 @@ MMDetection 中训练 Detectron2 的模型
     用预先训练的 FCOS 训练定制的 Faster R-CNN
 
 
+
+
+测试阶段可视化结果
 测试现有模型 D:\jht_code\mmdetection\mmdetction_git\mmdetection\docs\zh_cn\user_guides\test.md
-    1.测试 RTMDet 并【可视化其结果】。按任意键继续下张图片的测试。配置文件和 checkpoint 文件 在此 。  --show
-    2.测试 RTMDet，并为了之后的【可视化保存绘制的图像】。 --show-dir rtmdet_l_8xb32-300e_coco_results
-    3.在 Pascal VOC 数据集上测试 Faster R-CNN，不保存测试结果，测试 mAP
-    4.使用 8 块 GPU 测试 Mask R-CNN，测试 bbox 和 mAP
-    5.使用 8 块 GPU 测试 Mask R-CNN，测试每类的 bbox 和 mAP
-    在 COCO test-dev 数据集上，使用 8 块 GPU 测试 Mask R-CNN，并生成 JSON 文件提交到官方评测服务器
-    在 Cityscapes 数据集上，使用 8 块 GPU 测试 Mask R-CNN，生成 txt 和 png 文件，并上传到官方评测服务器
+【可视化其结果】       1.测试 RTMDet 并【可视化其结果】。按任意键继续下张图片的测试。配置文件和 checkpoint 文件 在此 。  --show
+【可视化保存绘制的图像】2.测试 RTMDet，并为了之后的【可视化保存绘制的图像】。 --show-dir rtmdet_l_8xb32-300e_coco_results
+                    3.在 Pascal VOC 数据集上测试 Faster R-CNN，不保存测试结果，测试 mAP
+                    4.使用 8 块 GPU 测试 Mask R-CNN，测试 bbox 和 mAP
+                    5.使用 8 块 GPU 测试 Mask R-CNN，测试每类的 bbox 和 mAP
+                    在 COCO test-dev 数据集上，使用 8 块 GPU 测试 Mask R-CNN，并生成 JSON 文件提交到官方评测服务器
+                    在 Cityscapes 数据集上，使用 8 块 GPU 测试 Mask R-CNN，生成 txt 和 png 文件，并上传到官方评测服务器
 
 
     不使用 Ground Truth 标注进行测试
@@ -262,6 +285,8 @@ MMDetection 中训练 Detectron2 的模型
 
 
 提交测试结果 D:\jht_code\mmdetection\mmdetction_git\mmdetection\docs\zh_cn\user_guides\test_results_submission.md
+        全景分割测试结果提交
+
 
 
 在标准数据集上训练预定义的模型  D:\jht_code\mmdetection\mmdetction_git\mmdetection\docs\zh_cn\user_guides\train.md
@@ -323,7 +348,7 @@ MMDetection 中训练 Detectron2 的模型
 
 
 除了训练和测试脚本，我们还在 tools/ 目录下提供了许多有用的工具。D:\jht_code\mmdetection\mmdetction_git\mmdetection\docs\zh_cn\user_guides\useful_tools.md
-    日志分析  tools/analysis_tools/analyze_logs.py 可利用指定的训练 log 文件绘制 loss/mAP 曲线图
+    # 日志分析  tools/analysis_tools/analyze_logs.py 可利用指定的训练 log 文件绘制 loss/mAP 曲线图
         绘制分类损失曲线图
         绘制分类损失、回归损失曲线图，保存图片为对应的 pdf 文件
         在相同图像中比较两次运行结果的 bbox mAP
@@ -366,6 +391,9 @@ MMDetection 中训练 Detectron2 的模型
 
     模型转换
 
+
+
+
 数据集转换  tools/data_converters/ 提供了将 Cityscapes 数据集与 Pascal VOC 数据集转换至 COCO 数据集格式的工具
 数据集下载  tools/misc/download_dataset.py 可以下载各类形如 COCO， VOC， LVIS 数据集。
 
@@ -382,8 +410,8 @@ MMDetection 中训练 Detectron2 的模型
     YOLO Anchor 优化
         tools/analysis_tools/optimize_anchors.py 提供了两种方法优化 YOLO 的 anchors。
 
-混淆矩阵************
-    混淆矩阵是对检测结果的概览。 tools/analysis_tools/confusion_matrix.py 可对预测结果进行分析，绘制成混淆矩阵表。 首先，运行 tools/test.py 保存 .pkl 预测结果。 之后再运行：
+混淆矩阵************  【可对预测结果进行分析】
+    混淆矩阵是对检测结果的概览。 tools/analysis_tools/confusion_matrix.py 【可对预测结果进行分析】，绘制成混淆矩阵表。 首先，运行 tools/test.py 保存 .pkl 预测结果。 之后再运行：
     python tools/analysis_tools/confusion_matrix.py ${CONFIG}  ${DETECTION_RESULTS}  ${SAVE_DIR} --show
 
 COCO 分离和遮挡实例分割性能评估
@@ -395,10 +423,20 @@ COCO 分离和遮挡实例分割性能评估
     在阅读本教程之前，建议先阅读 MMEngine 的 Visualization 文档，以对 Visualizer 的定义和用法有一个初步的了解。
     Visualization 文档：https://github.com/open-mmlab/mmengine/blob/main/docs/en/advanced_tutorials/visualization.md
 
+    数据集可视化功能  tools/analysis_tools/browse_dataset.py
+
+    MMEngine实现了LoggerHook，使用Visualizer将学习率、损失和评估结果写入由Visualizer设置的后端。因此，通过修改配置文件中的Visualizer后
+    端，例如修改为TensorBoardVISBackend或WandbVISBackend，可以实现日志记录到常用的训练日志工具，如TensorBoard或WandB，从而方便用户使用这些可视化工具来分析和监控训练过程。
+
+    在MMDet中实现了VisualizerHook，它使用Visualizer将验证或预测阶段的预测结果可视化或存储到由Visualizer设置的后端。因此，通过修改配置文件
+    中的Visualizer后端，例如修改为TensorBoardVISBackend或WandbVISBackend，可以将预测图像存储到TensorBoard或Wandb中。
+
+
     配置
         由于使用了注册机制，在MMDet中我们可以通过修改配置文件来设置Visualizer的行为。通常，我们会在configs/_base_/default_runtime.py中为可视化器定义默认配置，详细信息请参见配置教程。
 
     存储
+        MMDet默认使用本地可视化后端LocalVisBackend，VisualizerHook和LoggerHook中存储的模型损失、学习率、模型评估精度和可视化信息，包括损失、学习率、评估精度将默认保存到{work_dir}/{config_name}/{time}/{vis_data}文件夹中
 
     绘图
         绘制预测结果
@@ -412,5 +450,50 @@ COCO 分离和遮挡实例分割性能评估
         如果您想在训练或测试期间启用 DetVisualizationHook 相关功能和配置，您只需要修改配置文件
 
         test.py程序提供了--show和--show-dir参数，可以在测试过程中可视化注释和预测结果，而不需要修改配置文件，从而进一步简化了测试过程。
+
+
+
+
+
+
+目标检测领域
+    单阶段网络
+        yolo系列
+        SSD
+        Retina Net
+
+    多阶段网络
+        Fast RCNN
+        Faster RCNN
+        Cascade RCNN
+
+
+
+
+1.训练，生成一个json文件
+2.使用训练生成的json文件进行日志分析
+    使用到analyze_logs.py进行loss可视化、各个指标的可视化   查看useful_tools.md文档教程操作
+    训练阶段
+        loss
+        loss_rpn_cls
+        loss_rpn_bbox
+        loss_cls
+        acc
+        boss_bbox
+    验证阶段
+        bbox_mAP
+        bbox_mAP_50
+        bbox_mAP_75
+        bbox_mAP_s
+        bbox_mAP_m
+        bbox_mAP_l
+D:\jht_code\mmdetection_git\mmdetection\work_dir
+
+3.选择最后的epoch进行测试(不一定非得最后一个epoch，理论上最后一个epoch是最好的模型参数)
+    使用到test.py生成.pkl文件和保存测试结果的json文件mAP, 还可以对测试的图片进行推理保存，并可视化每张图片的结果
+
+4.生成.pkl文件之后
+    使用analyze_results.py和confusion_matrix.py对结果进行分析，可计算每个图像 mAP，以及生成混淆矩阵
+
 
 

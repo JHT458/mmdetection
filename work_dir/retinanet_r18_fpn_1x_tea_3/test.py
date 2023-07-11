@@ -25,11 +25,11 @@ def parse_args():
     #     '--work-dir',
     #     help='the directory to save the file containing evaluation metrics')
 
-    parser.add_argument('-config', help='test config file path',default='../configs/tea_data/faster-rcnn_r50_fpn_1x_tea_1.py')
-    parser.add_argument('-checkpoint', help='checkpoint file',default='../work_dir/faster-rcnn_r50_fpn_1x_tea_1/epoch_50.pth')
+    parser.add_argument('-config', help='test config file path',default='../configs/tea_data/faster_rcnn_r50_fpn_1x_tea_1.py')
+    parser.add_argument('-checkpoint', help='checkpoint file',default='../work_dir/faster_rcnn_r50_fpn_1x_tea_1/epoch_50.pth')
     parser.add_argument(
         '--work-dir',
-        help='the directory to save the file containing evaluation metrics',default='../work_dir/faster-rcnn_r50_fpn_1x_tea_1/test')
+        help='the directory to save the file containing evaluation metrics',default='../work_dir/faster_rcnn_r50_fpn_1x_tea_1/test')
 
     parser.add_argument(
         '--out',

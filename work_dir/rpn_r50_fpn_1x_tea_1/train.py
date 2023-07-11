@@ -16,8 +16,8 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Train a detector')
     # parser.add_argument('-config', help='train config file path')
     # parser.add_argument('--work-dir', help='the dir to save logs and models')
-    parser.add_argument('-config', help='train config file path', default=r'D:\jht_code\mmdetection\mmdetection\configs\tea_data\rpn_r50_fpn_1x_tea_1.py') ########
-    parser.add_argument('--work-dir', help='the dir to save logs and models', default=r'D:\jht_code\mmdetection\mmdetection\work_dir\rpn_r50_fpn_1x_tea_1')  #############
+    parser.add_argument('-config', help='train config file path', default=r'D:\jht_code\mmdetection_git\mmdetection\configs\tea_data\rpn_r50_fpn_1x_tea_1.py') ########
+    parser.add_argument('--work-dir', help='the dir to save logs and models', default=r'D:\jht_code\mmdetection_git\mmdetection\work_dir\rpn_r50_fpn_1x_tea_1')  #############
     parser.add_argument(
         '--amp',
         action='store_true',
@@ -136,5 +136,5 @@ def main():
     runner.train()
 
 
-if __name__ == '__main__':
-    main()
+# if __name__ == '__main__':
+#     main()

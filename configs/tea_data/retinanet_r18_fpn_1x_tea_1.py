@@ -9,7 +9,7 @@ metainfo = {
     'palette':[(220,20,60)]
 }
 
-train_cfg = dict(type='EpochBasedTrainLoop', max_epochs=60, val_interval=1)
+train_cfg = dict(type='EpochBasedTrainLoop', max_epochs=50, val_interval=1)
 
 train_dataloader = dict(
     batch_size = 4,

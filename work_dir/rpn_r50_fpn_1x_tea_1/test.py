@@ -25,23 +25,28 @@ def parse_args():
     #     '--work-dir',
     #     help='the directory to save the file containing evaluation metrics')
 
-    parser.add_argument('-config', help='test config file path',default='../configs/tea_data/faster-rcnn_r50_fpn_1x_tea_1.py')
-    parser.add_argument('-checkpoint', help='checkpoint file',default='../work_dir/faster-rcnn_r50_fpn_1x_tea_1/epoch_50.pth')
+    parser.add_argument('--config', help='test config file path',default=r'D:\jht_code\mmdetection_git\mmdetection\configs\tea_data\rpn_r50_fpn_1x_tea_1.py') ########
+    parser.add_argument('--checkpoint', help='checkpoint file',default='epoch_50.pth')      ##############
     parser.add_argument(
         '--work-dir',
-        help='the directory to save the file containing evaluation metrics',default='../work_dir/faster-rcnn_r50_fpn_1x_tea_1/test')
+        help='the directory to save the file containing evaluation metrics',default=r'.\test\test_epoch_50')  #####################
 
+    # parser.add_argument(
+    #     '--out',
+    #     type=str,
+    #     help='dump predictions to a pickle file for offline evaluation')
     parser.add_argument(
         '--out',
         type=str,
-        help='dump predictions to a pickle file for offline evaluation',default=r'C:\Users\DELL\Desktop')
+        help='dump predictions to a pickle file for offline evaluation', default=r'.\test\test_epoch_50\epoch_50.pkl') #######################
+
     parser.add_argument(
         '--show', action='store_true', help='show prediction results')
     parser.add_argument(
         '--show-dir',
         help='directory where painted images will be saved. '
         'If specified, it will be automatically saved '
-        'to the work_dir/timestamp/show_dir')
+        'to the work_dir/timestamp/show_dir', default=r'..\show_dir')
     parser.add_argument(
         '--wait-time', type=float, default=2, help='the interval of show (s)')
     parser.add_argument(
